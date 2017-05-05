@@ -1,13 +1,23 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This is a temporary script file.
+"""
+
 import nltk
 import math
 import string
 import numpy as np
 import pandas as pd
+import csv
 
 from nltk.corpus import stopwords
 from collections import Counter
-from nltk.stem.porter import  *
+from nltk.stem.porter import  PorterStemmer
 from sklearn.feature_extraction.text import  TfidfVectorizer
+
+text_number =1
 
 text =  "The Colt Python is a .357 Magnum caliber revolver formerly \
 manufactured by Colt's Manufacturing Company of Hartford, Connecticut. \
@@ -40,10 +50,19 @@ def count_tokens(text):
     count = Counter(stemmed)
     return count
 
-
 def main():
-    print(count_tokens(text))
+    count = count_tokens(text)
+    stem_list = tuple(count)
+    count_list = tuple(count.values())
+    count_lists = [[] for i in range(text_number + 1)]
+    count_lists[0] = stem_list
+    count_lists[1] = count_list
 
 
-if __name__ == "_main_":
+    #print (stem_list)
+    print (count_lists)
+    #print (count)
+    #print (count.keys())
+
+if __name__ == "__main__":
     main()
