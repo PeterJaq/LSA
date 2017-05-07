@@ -1,33 +1,19 @@
-# -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-This is a temporary script file.
-"""
-
 import nltk
 import math
 import string
-import numpy as np
-import pandas as pd
-import csv
 
 from nltk.corpus import stopwords
 from collections import Counter
-from nltk.stem.porter import  PorterStemmer
+from nltk.stem.porter import  *
 from sklearn.feature_extraction.text import  TfidfVectorizer
 
-text_number =1
+nltk.download('punkt')
 
-text =  "The Colt Python is a .357 Magnum caliber revolver formerly \
-manufactured by Colt's Manufacturing Company of Hartford, Connecticut. \
-It is sometimes referred to as a \"Combat Magnum\".[1] It was first introduced \
-in 1955, the same year as Smith &amp; Wesson's M29 .44 Magnum. The now discontinued \
-Colt Python targeted the premium revolver market segment. Some firearm \
-collectors and writers such as Jeff Cooper, Ian V. Hogg, Chuck Hawks, Leroy \
-Thompson, Renee Smeets and Martin Dougherty have described the Python as the \
-finest production revolver ever made."
+text1 = "Natural language processing (NLP) is a field of computer science, artificial intelligence and computational linguistics concerned with the interactions between computers and human (natural) languages, and, in particular, concerned with programming computers to fruitfully process large natural language corpora. Challenges in natural language processing frequently involve natural language understanding, natural language generation (frequently from formal, machine-readable logical forms), connecting language and machine perception, managing human-computer dialog systems, or some combination thereof."
 
+text2 = "The Georgetown experiment in 1954 involved fully automatic translation of more than sixty Russian sentences into English. The authors claimed that within three or five years, machine translation would be a solved problem.[2] However, real progress was much slower, and after the ALPAC report in 1966, which found that ten-year-long research had failed to fulfill the expectations, funding for machine translation was dramatically reduced. Little further research in machine translation was conducted until the late 1980s, when the first statistical machine translation systems were developed."
+
+text3 = "During the 1970s, many programmers began to write conceptual ontologies, which structured real-world information into computer-understandable data. Examples are MARGIE (Schank, 1975), SAM (Cullingford, 1978), PAM (Wilensky, 1978), TaleSpin (Meehan, 1976), QUALM (Lehnert, 1977), Politics (Carbonell, 1979), and Plot Units (Lehnert 1981). During this time, many chatterbots were written including PARRY, Racter, and Jabberwacky。"
 
 def get_tokens(text):
     lower = text.lower()
@@ -42,7 +28,19 @@ def stem_tokens(tokens, stemmer):
         stemmed.append(stemmer.stem(item))
     return stemmed
 
-def count_tokens(text):
+def tf(word, count):
+    return count[word] / sum(count.values())
+
+def n_containing(word, count_list):
+    return sum(1 for count in count_list if word in count)
+
+def idf(word, count_list):
+    return math.log(len(count_list)) / (1 + n_containing(word, count_list))
+
+def tfidf(word, count, count_list):
+    return tf(word, count) * idf(word, count_list)
+
+def count_term(text):
     tokens = get_tokens(text)
     filtered = [w for w in tokens if not w in stopwords.words('english')]
     stemmer = PorterStemmer()
@@ -51,18 +49,17 @@ def count_tokens(text):
     return count
 
 def main():
-    count = count_tokens(text)
-    stem_list = tuple(count)
-    count_list = tuple(count.values())
-    count_lists = [[] for i in range(text_number + 1)]
-    count_lists[0] = stem_list
-    count_lists[1] = count_list
-
-
-    #print (stem_list)
-    print (count_lists)
-    #print (count)
-    #print (count.keys())
+    texts = [text1, text2, text3]
+    countlist = []
+    for text in texts:
+        countlist.append(countdoc(text))
+    for i, count in enumerate(countlist):
+        print("Top words in document {}".format(i + 1))
+        scores = {word: tfidf(word, count, countlist) for word in count}
+        sorted_words = sorted(scores.items(), key = lambda x: x[1], reverse=True)
+        for word, score in sorted_words[:5]:
+            print("\tWord: {}, TF-IDF: {}".format(word, round(score, 5)))
 
 if __name__ == "__main__":
     main()
+
